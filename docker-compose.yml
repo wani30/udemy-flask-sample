@@ -12,7 +12,7 @@ services:
       - "19689:80"
       - "19688:80"
     volumes:
-      - html:/nginx/html
+      - html:/usr/share/nginx/html
       - socket:/tmp
       - socket_api:/tmp_api
 
@@ -31,29 +31,17 @@ services:
     volumes:
       # HTTPS用の証明書とキーをホストOSから、ゲストOSに連結する
       - /etc/letsencrypt:/etc/letsencrypt
-      - html_proxy:/nginx/html
+      - html_proxy:/usr/share/nginx/html
 
   certbot:
     image: certbot/certbot:v1.26.0
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt
-      - html_proxy:/nginx/html
+      - html_proxy:/usr/share/nginx/html
     depends_on:
       - nginx_proxy
     # 新規作成(サブドメも含めて取得する)
-    entrypoint:
-      [
-        "certbot",
-        "certonly",
-        "-d $DOMAIN",
-        "-d $API_DOMAIN",
-        "-d $KEY_DOMAIN",
-        "-m $MAIL",
-        "--agree-tos",
-        "--webroot",
-        "-w",
-        "/nginx/html/",
-      ]
+    entrypoint: ["certbot", "certonly", "-d $DOMAIN", "-d $API_DOMAIN",  "-d $KEY_DOMAIN", "-m $MAIL", "--agree-tos","--webroot", "-w","/usr/share/nginx/html/"]
     # 更新の時はこちら
     # 参考
     # https://hogetech.info/network/web/lets-encrypt
